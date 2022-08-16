@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import FavoriteContext, { FavoriteProvider } from "../contexts/favoriteContext";
+import FavoriteContext from "../contexts/favoriteContext";
 
 const Navbar = () => {
   const { favoritePokemons } = useContext(FavoriteContext);
@@ -10,7 +10,7 @@ const Navbar = () => {
       <div>
         <img alt="pokeapi-logo" src={logoImg} className="navbar-img" />
       </div>
-      <div>{favoritePokemons.length}❤</div>
+      <div>{favoritePokemons.length}💙</div>
     </nav>
   );
 };

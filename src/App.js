@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { getPokemonData, getPokemons } from "./api";
+import { getPokemonData, getPokemons, searchPokemon } from "./api";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Pokedex from "./components/Pokedex";
 import Searchbar from "./components/Searchbar";
 import { FavoriteProvider } from "./contexts/favoriteContext";
 
+const favoritesKey = "f";
 function App() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [pokemons, setPokemons] = useState([]);
   const [favorites, setFavorites] = useState([]);
 
@@ -17,6 +19,7 @@ function App() {
   const fetchPokemons = async () => {
     try {
       setLoading(true);
+      setNotFound(false);
       const data = await getPokemons(itensPerPage, itensPerPage * page);
       const promises = data.results.map(async (pokemon) => {
         return await getPokemonData(pokemon.url);
@@ -31,22 +34,49 @@ function App() {
     }
   };
 
+  const loadFavoritePokemons = () => {
+    const pokemons =
+      JSON.parse(window.localStorage.getItem(favoritesKey)) || [];
+    setFavorites(pokemons);
+  };
+  useEffect(() => {
+    loadFavoritePokemons();
+  }, []);
+
   useEffect(() => {
     console.log("carregou");
     fetchPokemons();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const updateFavoritePokemons = (name) => {
     const updatedFavorites = [...favorites];
     const favoriteIndex = favorites.indexOf(name);
     if (favoriteIndex >= 0) {
-      updatedFavorites.slice(favoriteIndex, 1);
+      updatedFavorites.splice(favoriteIndex, 1);
     } else {
       updatedFavorites.push(name);
     }
+    window.localStorage.setItem(favoritesKey, JSON.stringify(updatedFavorites));
     setFavorites(updatedFavorites);
   };
 
+  const onSearchHandler = async (pokemon) => {
+    if (!pokemon) {
+      return fetchPokemons();
+    }
+    setLoading(true);
+    setNotFound(false);
+    const result = await searchPokemon(pokemon);
+    if (!result) {
+      setNotFound(true);
+    } else {
+      setPokemons([result]);
+      setPage(0);
+      setTotalPages(1);
+    }
+    setLoading(false);
+  };
   return (
     <FavoriteProvider
       value={{
@@ -56,14 +86,20 @@ function App() {
     >
       <div>
         <Navbar />
-        <Searchbar />
-        <Pokedex
-          pokemons={pokemons}
-          loading={loading}
-          page={page}
-          setPage={setPage}
-          totalPages={totalPages}
-        />
+        <Searchbar onSearch={onSearchHandler} />
+        {notFound ? (
+          <div className="not-found-text">
+            Pokemon not found or incorrect name
+          </div>
+        ) : (
+          <Pokedex
+            pokemons={pokemons}
+            loading={loading}
+            page={page}
+            setPage={setPage}
+            totalPages={totalPages}
+          />
+        )}
       </div>
     </FavoriteProvider>
   );
