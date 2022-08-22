@@ -1,6 +1,9 @@
 * {
   margin: 0px;
 }
+.container {
+  background-color: #11111125;
+}
 
 nav {
   height: 100px;

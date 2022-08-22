@@ -78,30 +78,32 @@ function App() {
     setLoading(false);
   };
   return (
-    <FavoriteProvider
-      value={{
-        favoritePokemons: favorites,
-        updateFavoritePokemons: updateFavoritePokemons,
-      }}
-    >
-      <div>
-        <Navbar />
-        <Searchbar onSearch={onSearchHandler} />
-        {notFound ? (
-          <div className="not-found-text">
-            Pokemon not found or incorrect name
-          </div>
-        ) : (
-          <Pokedex
-            pokemons={pokemons}
-            loading={loading}
-            page={page}
-            setPage={setPage}
-            totalPages={totalPages}
-          />
-        )}
-      </div>
-    </FavoriteProvider>
+    <div className="container">
+      <FavoriteProvider
+        value={{
+          favoritePokemons: favorites,
+          updateFavoritePokemons: updateFavoritePokemons,
+        }}
+      >
+        <div>
+          <Navbar />
+          <Searchbar onSearch={onSearchHandler} />
+          {notFound ? (
+            <div className="not-found-text">
+              Pokemon not found or incorrect name
+            </div>
+          ) : (
+            <Pokedex
+              pokemons={pokemons}
+              loading={loading}
+              page={page}
+              setPage={setPage}
+              totalPages={totalPages}
+            />
+          )}
+        </div>
+      </FavoriteProvider>
+    </div>
   );
 }
 
